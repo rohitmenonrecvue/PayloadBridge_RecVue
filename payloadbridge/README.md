@@ -1,43 +1,71 @@
 # PayloadBridge Microservice
 
-## Overview
-PayloadBridge is a FastAPI-based microservice for the RecVue Contract Orchestrator. It validates, authenticates, and forwards order payloads to RecVue's /order/orderlines API.
+A production-ready FastAPI microservice for secure, validated, and auditable order payload forwarding to RecVue’s Contract Orchestrator API.
 
 ## Features
-- Strict payload validation using Pydantic
-- Okta/RecVue authentication via /authorize
-- Forwards payloads to RecVue with enriched headers
-- Detailed error handling and logging
-- Unit and integration tests with pytest + respx
-- Dockerized for easy deployment
-- Healthcheck endpoint for readiness probes
+- **Strict Pydantic validation** for all order payloads
+- **Okta-based authentication** and RecVue /authorize integration
+- **Robust error handling** with clear HTTP status codes
+- **Centralized config** via environment variables
+- **Structured logging** with request/tenant/correlation IDs
+- **Dockerized** for easy deployment
+- **Comprehensive tests** using pytest and respx
 
-## Setup
-1. Clone the repo and navigate to the `payloadbridge/app` directory.
-2. Install dependencies:
-   ```sh
-   pip install -r ../requirements.txt
-   ```
-3. Copy `.env` to `app/core/.env` and set your config values.
-4. Run the service:
-   ```sh
-   uvicorn app.main:app --reload
-   ```
+## Project Structure
 
-## Docker
-Build and run with Docker:
-```sh
-docker build -t payloadbridge .
-docker run -p 8000:8000 --env-file app/core/.env payloadbridge
+```
+payloadbridge/
+├── main.py                   # FastAPI entry point
+├── models/
+│   └── order_line.py         # Pydantic validation model for order payloads
+├── services/
+│   └── auth_utils.py         # Handles /authorize authentication logic
+├── core/
+│   └── config.py             # Stores constants and base URLs
+├── tests/
+│   └── test_payloadbridge.py # Unit and integration tests
+├── sample_data/
+│   └── sample_payload.json   # Example payload for testing
+├── requirements.txt          # Python dependencies
+└── README.md                 # Setup and usage instructions
 ```
 
-## API Usage
-POST `/invoke_order_creation`
-- Headers: `access_token`, `hostName`
-- Body: Order + orderLines JSON (see `../sample_data/sample_payload.json`)
+## Quickstart
 
-GET `/healthcheck`
-- Returns `{ "status": "ok" }` if service is healthy
+1. **Clone the repo:**
+   ```sh
+   git clone https://github.com/rohitmenonrecvue/PayloadBridge_RecVue.git
+   cd PayloadBridge_RecVue
+   ```
+2. **Install dependencies:**
+   ```sh
+   pip install -r requirements.txt
+   ```
+3. **Configure environment:**
+   - Copy `.env.example` to `.env` and fill in required values.
+4. **Run the service:**
+   ```sh
+   uvicorn payloadbridge.main:app --reload
+   ```
+5. **Run tests:**
+   ```sh
+   pytest
+   ```
+
+## API Endpoints
+- `POST /invoke_order_creation` — Validates, authenticates, and forwards order payloads
+- `GET /healthcheck` — Service health status
+
+## Testing
+- See `tests/test_payloadbridge.py` for unit and integration tests
+- Use `sample_data/sample_payload.json` for example payloads
+
+## Docker
+- Build: `docker build -t payloadbridge .`
+- Run: `docker run --env-file .env -p 8000:8000 payloadbridge`
+
+## License
+MIT
 
 ## Testing
 Run all tests:
