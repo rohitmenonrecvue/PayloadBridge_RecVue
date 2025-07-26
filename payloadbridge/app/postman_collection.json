@@ -1,0 +1,30 @@
+{
+  "info": {
+    "name": "PayloadBridge API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Invoke Order Creation",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "access_token", "value": "<your_token>", "type": "text" },
+          { "key": "hostName", "value": "<your_host>", "type": "text" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"orderNumber\": \"ORD-2024-001\",\n  \"orderType\": \"Standard Order\",\n  \"orderCategory\": \"New\",\n  \"businessUnit\": \"US1 Business Unit\",\n  \"hdrEffectiveStartDate\": \"2024-01-01\",\n  \"hdrEffectiveEndDate\": \"2024-12-31\",\n  \"hdrBillToCustAccountNum\": \"CUST-12345\",\n  \"hdrEvergreenFlag\": \"N\",\n  \"orderLines\": [\n    {\n      \"lineNumber\": \"1\",\n      \"lineType\": \"Recurring\",\n      \"lineEffectiveStartDate\": \"2024-01-01\",\n      \"lineEffectiveEndDate\": \"2024-12-31\"\n    }\n  ]\n}\n"
+        },
+        "url": {
+          "raw": "http://localhost:8000/invoke_order_creation",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8000",
+          "path": ["invoke_order_creation"]
+        }
+      },
+      "response": []
+    }
+  ]
+}

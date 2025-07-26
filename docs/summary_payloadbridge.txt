@@ -1,0 +1,83 @@
+# PayloadBridge Microservice: Implementation Summary
+
+## Project Structure
+
+payloadbridge/
+├── main.py                   # FastAPI entry point
+├── models/
+│   └── order_line.py         # Pydantic validation model for order payloads
+├── services/
+│   └── auth_utils.py         # Handles /authorize authentication logic
+├── core/
+│   └── config.py             # Stores constants and base URLs
+├── tests/
+│   └── test_payloadbridge.py # Unit and integration tests
+├── sample_data/
+│   └── sample_payload.json   # Example payload for testing
+├── requirements.txt          # Python dependencies
+└── README.md                 # Setup and usage instructions
+
+## Component Purposes & How They Work
+
+### main.py
+- Purpose: FastAPI entry point, exposes /invoke_order_creation endpoint.
+- How it works:
+  - Receives POST requests with order payloads and headers.
+  - Extracts and checks for access_token and hostName headers.
+  - Validates the JSON payload using the OrderPayload Pydantic model.
+  - Calls /authorize via get_okta_headers to get RecVue-specific headers.
+  - Forwards the validated payload to RecVue /order/orderlines endpoint using httpx.AsyncClient.
+  - Returns the status and response from RecVue to the client.
+  - Handles and logs errors at each step, returning appropriate HTTP status codes.
+
+### models/order_line.py
+- Purpose: Defines the Pydantic model (OrderPayload) for validating incoming order payloads.
+- How it works:
+  - Enforces required and optional fields, types, and constraints as per RecVue’s API and validation documentation.
+  - Raises validation errors (422) if the payload is malformed or missing required data.
+  - Ensures only valid payloads are forwarded downstream.
+
+### services/auth_utils.py
+- Purpose: Handles authentication with RecVue’s /authorize endpoint.
+- How it works:
+  - Defines get_okta_headers(access_token, host_name) to call /authorize with the provided headers.
+  - Extracts and returns x-forwarded-user, tenantIdentifier, and hostName from the response.
+  - Raises HTTP errors if authentication fails or headers are missing.
+
+### core/config.py
+- Purpose: Stores configuration constants such as base URLs and endpoints.
+- How it works:
+  - Centralizes configuration for easy maintenance and environment changes.
+
+### tests/test_payloadbridge.py
+- Purpose: Provides unit and integration tests for the service.
+- How it works:
+  - Uses pytest and respx/httpx_mock to simulate external dependencies.
+  - Tests scenarios: valid payload (200), missing fields (422), bad auth (401/403), and downstream errors.
+
+### sample_data/sample_payload.json
+- Purpose: Provides a real-world example payload for testing and documentation.
+- How it works:
+  - Used in tests and as a reference for API consumers.
+
+### requirements.txt
+- Purpose: Lists all Python dependencies needed to run the service.
+- How it works:
+  - Used by pip to install FastAPI, httpx, Pydantic, pytest, etc.
+
+### README.md
+- Purpose: Documents setup, usage, and testing instructions.
+- How it works:
+  - Guides developers on how to install, run, and test the service.
+
+## How Components Interact
+
+- The client sends a POST request to /invoke_order_creation with headers and a JSON body.
+- main.py validates headers and payload, then authenticates with RecVue.
+- If valid, the payload is forwarded to RecVue’s /order/orderlines endpoint.
+- The response from RecVue is returned to the client.
+- All errors are logged and returned with appropriate HTTP status codes.
+- Tests ensure all logic and error handling work as expected.
+
+## Summary
+Each component was created to enforce strict validation, secure authentication, robust error handling, and clear separation of concerns, ensuring PayloadBridge is reliable, maintainable, and production-ready within the Contract Orchestrator architecture.

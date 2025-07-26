@@ -1,0 +1,12 @@
+fastapi
+httpx
+uvicorn
+pydantic
+pytest
+pytest-asyncio
+respx
+httpx-mock
+FastAPI
+Pydantic
+httpx
+pytest
